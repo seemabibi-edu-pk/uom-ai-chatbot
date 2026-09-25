@@ -206,7 +206,6 @@ def retrieve(question, top_k=5):
 # ANSWER GENERATION
 # ==========================================
 
-```python
 def generate_answer(question, top_k=5):
 
     # Retrieve relevant information from UOM dataset
