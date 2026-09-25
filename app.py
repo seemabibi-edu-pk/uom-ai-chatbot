@@ -225,7 +225,7 @@ def retrieve(question, top_k=5):
         print("SOURCE:", result["source"])
         print("----------------------------")
 
- return results[:top_k]
+    return results[:top_k]
 
 
 # ==========================================
