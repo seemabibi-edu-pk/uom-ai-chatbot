@@ -206,57 +206,53 @@ def retrieve(question, top_k=5):
 # ANSWER GENERATION
 # ==========================================
 
-def generate_answer(question):
+```python
+def generate_answer(question, top_k=5):
 
-    results = retrieve(
-        question,
-        top_k=3
-    )
+    # Retrieve relevant information from UOM dataset
+    results = retrieve(question, top_k=top_k)
 
-    # No useful match
-
-    if results[0]["keyword_score"] == 0:
-
-        return (
-            "I could not find this information "
-            "in the available University of "
-            "Malakand data.",
-            results[0]["source"]
-        )
-
-    # Create context
-
-    context = ""
+    # Build context
+    context_parts = []
 
     for result in results:
+        context_parts.append(
+            f"Title: {result['text']}\n"
+            f"Source: {result['source']}"
+        )
 
-        context += result["text"]
-        context += "\n\n"
+    context = "\n\n".join(context_parts)
 
+    # Prompt for the language model
     prompt = f"""
 You are the University of Malakand AI Assistant.
 
-Answer the question using ONLY the UOM information
-provided below.
+Answer the user's question using ONLY the information provided
+in the UOM CONTEXT.
 
-Rules:
-- Do not invent information.
-- Do not use outside knowledge.
-- Give a clear and direct answer.
-- If the answer is not available in the information,
-  say that it was not found in the available UOM data.
+Important rules:
+1. Carefully read all the context before answering.
+2. Give a direct answer to the question.
+3. If the context clearly contains the answer, use it.
+4. Do not say "I don't know" when the answer is present.
+5. Do not use outside knowledge.
+6. Do not invent facts.
+7. If the answer is not present in the context, say:
+   "I could not find this information in the available
+   University of Malakand data."
+8. For yes/no questions, answer Yes or No first and then
+   give a short explanation.
 
-UOM INFORMATION:
-
+UOM CONTEXT:
 {context}
 
-QUESTION:
-
+USER QUESTION:
 {question}
 
 ANSWER:
 """
 
+    # Tokenize
     inputs = tokenizer(
         prompt,
         return_tensors="pt",
@@ -264,20 +260,27 @@ ANSWER:
         max_length=1024
     )
 
+    # Generate answer
     outputs = model.generate(
         **inputs,
         max_new_tokens=120,
-        do_sample=False
+        do_sample=False,
+        num_beams=4,
+        early_stopping=True
     )
 
+    # Convert model output to text
     answer = tokenizer.decode(
         outputs[0],
         skip_special_tokens=True
-    )
+    ).strip()
 
-    source = results[0]["source"]
+    # Use the highest-ranked result as the source
+    source = results[0]["source"] if results else ""
 
     return answer, source
+```
+
 
 
 # ==========================================
