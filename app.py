@@ -36,18 +36,18 @@ st.write(
 def load_database():
 
     index = faiss.read_index(
-        "uom_vector_db/uom.index"
+        "uom.index"
     )
 
     with open(
-        "uom_vector_db/chunks.json",
+        "chunks.json",
         "r",
         encoding="utf-8"
     ) as f:
         chunks = json.load(f)
 
     with open(
-        "uom_vector_db/sources.json",
+        "sources.json",
         "r",
         encoding="utf-8"
     ) as f:
