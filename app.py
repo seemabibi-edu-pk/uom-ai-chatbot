@@ -236,6 +236,14 @@ def generate_answer(question, top_k=5):
 
     # Retrieve relevant information from UOM dataset
     results = retrieve(question, top_k=top_k)
+    st.write("### Retrieved Information")
+
+for result in results:
+    st.write(result["text"])
+    st.write("Keyword score:", result["keyword_score"])
+    st.write("Semantic score:", result["semantic_score"])
+    st.write("Source:", result["source"])
+    st.write("---")
 
     # Build context
     context_parts = []
