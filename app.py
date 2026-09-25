@@ -198,8 +198,34 @@ def retrieve(question, top_k=5):
         ),
         reverse=True
     )
+    results.append({
+            "semantic_score": float(
+                semantic_score
+            ),
+            "keyword_score": keyword_score,
+            "text": chunk,
+            "source": chunk_sources[idx]
+        })
 
-    return results[:top_k]
+    results.sort(
+        key=lambda x: (
+            x["keyword_score"],
+            x["semantic_score"]
+        ),
+        reverse=True
+    )
+    
+    print("\n===== RETRIEVED RESULTS =====")
+
+    for result in results[:top_k]:
+        print("TITLE/CONTENT:")
+        print(result["text"])
+        print("KEYWORD SCORE:", result["keyword_score"])
+        print("SEMANTIC SCORE:", result["semantic_score"])
+        print("SOURCE:", result["source"])
+        print("----------------------------")
+
+ return results[:top_k]
 
 
 # ==========================================
