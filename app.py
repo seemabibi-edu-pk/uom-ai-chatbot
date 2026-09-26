@@ -259,31 +259,25 @@ def generate_answer(question, top_k=5):
 
     # Prompt for the language model
     prompt = f"""
-You are the University of Malakand AI Assistant.
+Answer the user's question using ONLY the retrieved University of Malakand information.
 
-Answer the user's question using ONLY the information provided
-in the UOM CONTEXT.
+Rules:
+1. Give a direct answer first.
+2. For Yes/No questions, start with "Yes." or "No."
+3. Keep the answer short and simple.
+4. If the retrieved information clearly contains the answer, ALWAYS answer from it.
+5. Do not say "I could not find this information" when the answer is present in the retrieved information.
+6. Do not mention keyword scores or retrieval scores in the answer.
+7. Do not invent information.
+8. Do not add extra information that is not needed.
 
-Important rules:
-1. Carefully read all the context before answering.
-2. Give a direct answer to the question.
-3. If the context clearly contains the answer, use it.
-4. Do not say "I don't know" when the answer is present.
-5. Do not use outside knowledge.
-6. Do not invent facts.
-7. If the answer is not present in the context, say:
-   "I could not find this information in the available
-   University of Malakand data."
-8. For yes/no questions, answer Yes or No first and then
-   give a short explanation.
-
-UOM CONTEXT:
+Retrieved Information:
 {context}
 
-USER QUESTION:
+Question:
 {question}
 
-ANSWER:
+Answer:
 """
 
     # Tokenize
