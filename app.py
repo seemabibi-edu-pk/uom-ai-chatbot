@@ -334,15 +334,18 @@ Answer:
     )
 
     outputs = model.generate(
-        **inputs,
-        max_new_tokens=120,
-        do_sample=False
-    )
+    **inputs,
+    max_new_tokens=120,
+    do_sample=False
+)
 
-    answer = tokenizer.decode(
-        outputs[0],
-        skip_special_tokens=True
-    ).strip()
+# Decode only the newly generated tokens
+generated_tokens = outputs[0][inputs["input_ids"].shape[1]:]
+
+answer = tokenizer.decode(
+    generated_tokens,
+    skip_special_tokens=True
+).strip()
 
     # Remove accidental Yes/No for non-Yes/No questions
     if not is_yes_no:
