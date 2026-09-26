@@ -232,7 +232,7 @@ def retrieve(question, top_k=5):
 # ANSWER GENERATION
 # ==========================================
 
- def generate_answer(question, top_k=5):
+def generate_answer(question, top_k=5):
 
     # Retrieve relevant information from UOM dataset
     results = retrieve(question, top_k=top_k)
