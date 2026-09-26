@@ -248,7 +248,7 @@ def generate_answer(question, top_k=5):
     result = results[0]
     context = result["text"]
 
-    # Check whether this is actually a Yes/No question
+    # Check question type
     q = question.lower().strip()
 
     yes_no_starts = (
@@ -261,6 +261,36 @@ def generate_answer(question, top_k=5):
 
     is_yes_no = q.startswith(yes_no_starts)
 
+    # ==========================================
+    # HOW MANY QUESTIONS
+    # ==========================================
+
+    if q.startswith("how many"):
+
+        # Count faculties from a list in the retrieved text
+        if "facult" in q.lower() and "Faculty of" in context:
+
+            faculty_names = [
+                "Faculty of Arts & Humanities",
+                "Faculty of Social Sciences",
+                "Faculty of Sciences",
+                "Faculty of Biological Sciences",
+                "Faculty of Computing Sciences and Engineering",
+                "Faculty of Management Sciences"
+            ]
+
+            count = sum(
+                1 for faculty in faculty_names
+                if faculty.lower() in context.lower()
+            )
+
+            if count > 0:
+                return f"{count} faculties.", result["source"]
+
+    # ==========================================
+    # YES / NO RULE
+    # ==========================================
+
     if is_yes_no:
         extra_rule = """
 - This is a Yes/No question, so start with Yes. or No.
@@ -269,7 +299,6 @@ def generate_answer(question, top_k=5):
         extra_rule = """
 - This is NOT a Yes/No question.
 - Do NOT start or end the answer with Yes or No.
-- For "how many" questions, give the number directly.
 - For "which" questions, give the requested names directly.
 """
 
