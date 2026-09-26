@@ -343,12 +343,10 @@ Answer:
     )
 
     # Get ONLY the generated answer
-    generated_tokens = outputs[0][inputs["input_ids"].shape[1]:]
-
     answer = tokenizer.decode(
-        generated_tokens,
-        skip_special_tokens=True
-    ).strip()
+    outputs[0],
+    skip_special_tokens=True
+).strip()
 
     # Remove accidental Yes/No for non-Yes/No questions
     if not is_yes_no:
