@@ -298,15 +298,23 @@ Question:
 Answer:
 """
 
-    output = pipe(
-        prompt,
-        max_new_tokens=120,
-        max_length=None,
-        do_sample=False,
-        return_full_text=False
-    )
+    inputs = tokenizer(
+    prompt,
+    return_tensors="pt",
+    truncation=True,
+    max_length=1024
+)
 
-    answer = output[0]["generated_text"].strip()
+outputs = model.generate(
+    **inputs,
+    max_new_tokens=120,
+    do_sample=False
+)
+
+answer = tokenizer.decode(
+    outputs[0],
+    skip_special_tokens=True
+).strip()
 
     # Remove accidental Yes/No for non-Yes/No questions
     if not is_yes_no:
