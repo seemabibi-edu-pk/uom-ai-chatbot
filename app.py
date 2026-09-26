@@ -246,7 +246,6 @@ def generate_answer(question, top_k=5):
 
     # Use the best retrieved result
     result = results[0]
-
     context = result["text"]
 
     # Check whether this is actually a Yes/No question
@@ -299,63 +298,45 @@ Answer:
 """
 
     inputs = tokenizer(
-    prompt,
-    return_tensors="pt",
-    truncation=True,
-    max_length=1024
-)
+        prompt,
+        return_tensors="pt",
+        truncation=True,
+        max_length=1024
+    )
 
-outputs = model.generate(
-    **inputs,
-    max_new_tokens=120,
-    do_sample=False
-)
+    outputs = model.generate(
+        **inputs,
+        max_new_tokens=120,
+        do_sample=False
+    )
 
-answer = tokenizer.decode(
-    outputs[0],
-    skip_special_tokens=True
-).strip()
+    answer = tokenizer.decode(
+        outputs[0],
+        skip_special_tokens=True
+    ).strip()
 
-# Remove accidental Yes/No for non-Yes/No questions
-if not is_yes_no:
+    # Remove accidental Yes/No for non-Yes/No questions
+    if not is_yes_no:
 
-    if answer.lower().startswith("yes."):
-        answer = answer[4:].strip()
+        if answer.lower().startswith("yes."):
+            answer = answer[4:].strip()
 
-    elif answer.lower().startswith("no."):
-        answer = answer[3:].strip()
+        elif answer.lower().startswith("no."):
+            answer = answer[3:].strip()
 
-    if answer.lower().endswith(" yes."):
-        answer = answer[:-5].strip()
+        if answer.lower().endswith(" yes."):
+            answer = answer[:-5].strip()
 
-    elif answer.lower().endswith(" no."):
-        answer = answer[:-4].strip()
+        elif answer.lower().endswith(" no."):
+            answer = answer[:-4].strip()
 
-    elif answer.lower().endswith(" yes"):
-        answer = answer[:-4].strip()
+        elif answer.lower().endswith(" yes"):
+            answer = answer[:-4].strip()
 
-    elif answer.lower().endswith(" no"):
-        answer = answer[:-3].strip()
+        elif answer.lower().endswith(" no"):
+            answer = answer[:-3].strip()
 
-     return answer, result
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    return answer, result
 
 
 # ==========================================
@@ -375,6 +356,10 @@ if question:
         st.write(question)
 
     with st.chat_message("assistant"):
+
+
+
+
 
         with st.spinner(
             "Searching UOM information..."
