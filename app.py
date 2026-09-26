@@ -288,7 +288,7 @@ def generate_answer(question, top_k=5):
     # PROMPT
     # ==========================================
 
-    if is_yes_no:
+      if is_yes_no:
         extra_rule = """
 - This is a Yes/No question.
 - Start with Yes. or No.
