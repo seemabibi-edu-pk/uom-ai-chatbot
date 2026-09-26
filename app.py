@@ -288,7 +288,7 @@ def generate_answer(question, top_k=5):
     # PROMPT
     # ==========================================
 
-          is_yes_no = q.startswith(yes_no_starts)
+    is_yes_no = q.startswith(yes_no_starts)
 
     if is_yes_no:
         extra_rule = """
