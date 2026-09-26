@@ -336,7 +336,7 @@ Answer:
         elif answer.lower().endswith(" no"):
             answer = answer[:-3].strip()
 
-    return answer, result
+    return answer, result["source"]
 
 
 # ==========================================
