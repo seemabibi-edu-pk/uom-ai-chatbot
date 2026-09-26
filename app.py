@@ -232,7 +232,7 @@ def retrieve(question, top_k=5):
 # ANSWER GENERATION
 # ==========================================
 
-def generate_answer(question, top_k=5):
+ def generate_answer(question, top_k=5):
 
     # Retrieve relevant information from UOM dataset
     results = retrieve(question, top_k=top_k)
@@ -244,7 +244,7 @@ def generate_answer(question, top_k=5):
             None
         )
 
-    # Use the best retrieved result
+    # Best retrieved result
     result = results[0]
     context = result["text"]
 
@@ -262,44 +262,42 @@ def generate_answer(question, top_k=5):
     is_yes_no = q.startswith(yes_no_starts)
 
     # ==========================================
-    # HOW MANY QUESTIONS
+    # HOW MANY - FACULTIES
     # ==========================================
 
-    if q.startswith("how many"):
+    if q.startswith("how many") and "facult" in q:
 
-        # Count faculties from a list in the retrieved text
-        if "facult" in q.lower() and "Faculty of" in context:
+        faculty_names = [
+            "Faculty of Arts & Humanities",
+            "Faculty of Social Sciences",
+            "Faculty of Sciences",
+            "Faculty of Biological Sciences",
+            "Faculty of Computing Sciences and Engineering",
+            "Faculty of Management Sciences"
+        ]
 
-            faculty_names = [
-                "Faculty of Arts & Humanities",
-                "Faculty of Social Sciences",
-                "Faculty of Sciences",
-                "Faculty of Biological Sciences",
-                "Faculty of Computing Sciences and Engineering",
-                "Faculty of Management Sciences"
-            ]
+        count = sum(
+            1 for faculty in faculty_names
+            if faculty.lower() in context.lower()
+        )
 
-            count = sum(
-                1 for faculty in faculty_names
-                if faculty.lower() in context.lower()
-            )
-
-            if count > 0:
-                return f"{count} faculties.", result["source"]
+        if count > 0:
+            return f"{count} faculties.", result["source"]
 
     # ==========================================
-    # YES / NO RULE
+    # PROMPT
     # ==========================================
 
     if is_yes_no:
         extra_rule = """
-- This is a Yes/No question, so start with Yes. or No.
+- This is a Yes/No question.
+- Start with Yes. or No.
 """
     else:
         extra_rule = """
-- This is NOT a Yes/No question.
-- Do NOT start or end the answer with Yes or No.
-- For "which" questions, give the requested names directly.
+- This is not a Yes/No question.
+- Answer the question directly.
+- Do not start the answer with Yes or No.
 """
 
     prompt = f"""
@@ -334,18 +332,18 @@ Answer:
     )
 
     outputs = model.generate(
-    **inputs,
-    max_new_tokens=120,
-    do_sample=False
-)
+        **inputs,
+        max_new_tokens=120,
+        do_sample=False
+    )
 
-# Decode only the newly generated tokens
-generated_tokens = outputs[0][inputs["input_ids"].shape[1]:]
+    # Get ONLY the generated answer
+    generated_tokens = outputs[0][inputs["input_ids"].shape[1]:]
 
-answer = tokenizer.decode(
-    generated_tokens,
-    skip_special_tokens=True
-).strip()
+    answer = tokenizer.decode(
+        generated_tokens,
+        skip_special_tokens=True
+    ).strip()
 
     # Remove accidental Yes/No for non-Yes/No questions
     if not is_yes_no:
