@@ -288,14 +288,19 @@ def generate_answer(question, top_k=5):
     # PROMPT
     # ==========================================
 
-      if is_yes_no:
+          is_yes_no = q.startswith(yes_no_starts)
+
+    if is_yes_no:
         extra_rule = """
 - This is a Yes/No question.
-- Start with Yes. or No.
+- Answer Yes or No based ONLY on the retrieved information.
+- If the retrieved information confirms the statement, answer Yes.
+- If the retrieved information contradicts the statement, answer No.
+- After Yes or No, give a short explanation using ONLY the retrieved information.
 """
     else:
         extra_rule = """
-- This is not a Yes/No question.
+- This is NOT a Yes/No question.
 - Answer the question directly.
 - Do not start the answer with Yes or No.
 """
