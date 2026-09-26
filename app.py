@@ -262,14 +262,17 @@ def generate_answer(question, top_k=5):
 Answer the user's question using ONLY the retrieved University of Malakand information.
 
 Rules:
-1. Give a direct answer first.
-2. For Yes/No questions, start with "Yes." or "No."
-3. Keep the answer short and simple.
-4. If the retrieved information clearly contains the answer, ALWAYS answer from it.
-5. Do not say "I could not find this information" when the answer is present in the retrieved information.
-6. Do not mention keyword scores or retrieval scores in the answer.
-7. Do not invent information.
-8. Do not add extra information that is not needed.
+1. Give a direct answer.
+2. If the question is a Yes/No question, start with "Yes." or "No."
+3. If the question asks "how many", give the number directly.
+4. If the question asks "what", give the requested information directly.
+5. If the question asks "which", list the requested items directly.
+6. Do not use "Yes" or "No" for questions that are not Yes/No questions.
+7. Keep the answer short and simple.
+8. If the retrieved information contains the answer, always answer from it.
+9. Do not invent information.
+10. Do not mention keyword scores or semantic scores in the answer.
+11. Do not provide the source inside the answer.
 
 Retrieved Information:
 {context}
