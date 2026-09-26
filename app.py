@@ -316,28 +316,44 @@ answer = tokenizer.decode(
     skip_special_tokens=True
 ).strip()
 
-    # Remove accidental Yes/No for non-Yes/No questions
-    if not is_yes_no:
+# Remove accidental Yes/No for non-Yes/No questions
+if not is_yes_no:
 
-        if answer.lower().startswith("yes."):
-            answer = answer[4:].strip()
+    if answer.lower().startswith("yes."):
+        answer = answer[4:].strip()
 
-        elif answer.lower().startswith("no."):
-            answer = answer[3:].strip()
+    elif answer.lower().startswith("no."):
+        answer = answer[3:].strip()
 
-        if answer.lower().endswith(" yes."):
-            answer = answer[:-5].strip()
+    if answer.lower().endswith(" yes."):
+        answer = answer[:-5].strip()
 
-        elif answer.lower().endswith(" no."):
-            answer = answer[:-4].strip()
+    elif answer.lower().endswith(" no."):
+        answer = answer[:-4].strip()
 
-        elif answer.lower().endswith(" yes"):
-            answer = answer[:-4].strip()
+    elif answer.lower().endswith(" yes"):
+        answer = answer[:-4].strip()
 
-        elif answer.lower().endswith(" no"):
-            answer = answer[:-3].strip()
+    elif answer.lower().endswith(" no"):
+        answer = answer[:-3].strip()
 
-    return answer, result
+return answer, result
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
