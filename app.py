@@ -237,42 +237,57 @@ def generate_answer(question, top_k=5):
     # Retrieve relevant information from UOM dataset
     results = retrieve(question, top_k=top_k)
 
-    st.write("### Retrieved Information")
-
-    for result in results:
-        st.write(result["text"])
-        st.write("Keyword score:", result["keyword_score"])
-        st.write("Semantic score:", result["semantic_score"])
-        st.write("Source:", result["source"])
-        st.write("---")
-
-    # Build context
-    context_parts = []
-
-    for result in results:
-        context_parts.append(
-            f"Title: {result['text']}\n"
-            f"Source: {result['source']}"
+    if not results:
+        return (
+            "I could not find this information in the available "
+            "University of Malakand data.",
+            None
         )
 
-    context = "\n\n".join(context_parts)
+    # Use the best retrieved result
+    result = results[0]
 
-    # Prompt for the language model
+    context = result["text"]
+
+    # Check whether this is actually a Yes/No question
+    q = question.lower().strip()
+
+    yes_no_starts = (
+        "is ", "are ", "was ", "were ",
+        "does ", "do ", "did ",
+        "has ", "have ", "can ",
+        "could ", "will ", "would ",
+        "should "
+    )
+
+    is_yes_no = q.startswith(yes_no_starts)
+
+    if is_yes_no:
+        extra_rule = """
+- This is a Yes/No question, so start with Yes. or No.
+"""
+    else:
+        extra_rule = """
+- This is NOT a Yes/No question.
+- Do NOT start or end the answer with Yes or No.
+- For "how many" questions, give the number directly.
+- For "which" questions, give the requested names directly.
+"""
+
     prompt = f"""
-Answer the user's question using ONLY the retrieved University of Malakand information.
+Answer the user's question using ONLY the retrieved University
+of Malakand information.
 
 Rules:
 1. Give a direct answer.
-2. If the question is a Yes/No question, start with "Yes." or "No."
-3. If the question asks "how many", give the number directly.
-4. If the question asks "what", give the requested information directly.
-5. If the question asks "which", list the requested items directly.
-6. Do not use "Yes" or "No" for questions that are not Yes/No questions.
-7. Keep the answer short and simple.
-8. If the retrieved information contains the answer, always answer from it.
-9. Do not invent information.
-10. Do not mention keyword scores or semantic scores in the answer.
-11. Do not provide the source inside the answer.
+2. Use only the retrieved information.
+3. Do not invent information.
+4. Keep the answer short and clear.
+5. Do not repeat the question.
+6. Do not mention keyword score.
+7. Do not mention semantic score.
+8. Do not include the source inside the answer.
+{extra_rule}
 
 Retrieved Information:
 {context}
@@ -283,33 +298,38 @@ Question:
 Answer:
 """
 
-    # Tokenize
-    inputs = tokenizer(
+    output = pipe(
         prompt,
-        return_tensors="pt",
-        truncation=True,
-        max_length=1024
-    )
-
-    # Generate answer
-    outputs = model.generate(
-        **inputs,
         max_new_tokens=120,
+        max_length=None,
         do_sample=False,
-        num_beams=4,
-        early_stopping=True
+        return_full_text=False
     )
 
-    # Convert model output to text
-    answer = tokenizer.decode(
-        outputs[0],
-        skip_special_tokens=True
-    ).strip()
+    answer = output[0]["generated_text"].strip()
 
-    # Use the highest-ranked result as the source
-    source = results[0]["source"] if results else ""
+    # Remove accidental Yes/No for non-Yes/No questions
+    if not is_yes_no:
 
-    return answer, source
+        if answer.lower().startswith("yes."):
+            answer = answer[4:].strip()
+
+        elif answer.lower().startswith("no."):
+            answer = answer[3:].strip()
+
+        if answer.lower().endswith(" yes."):
+            answer = answer[:-5].strip()
+
+        elif answer.lower().endswith(" no."):
+            answer = answer[:-4].strip()
+
+        elif answer.lower().endswith(" yes"):
+            answer = answer[:-4].strip()
+
+        elif answer.lower().endswith(" no"):
+            answer = answer[:-3].strip()
+
+    return answer, result
 
 
 
